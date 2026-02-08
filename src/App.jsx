@@ -52,7 +52,8 @@ const App = () => {
   const weddingCalendar = "https://www.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent("Wedding: Sai Krishna Chaitanya weds Bhavya Sree") + "&dates=20260304T190000Z/20260305T040000Z&location=I.M.A.+Hall,+Satyanarayanapuram,+Gudivada&sf=true&output=xml";
   const receptionCalendar = "https://www.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent("Reception: Sai Krishna Chaitanya weds Bhavya Sree") + "&dates=20260308T140000Z/20260308T180000Z&location=Sai+Madhura+Banquet+Hall,+Vanasthalipuram,+Hyderabad&sf=true&output=xml";
 
-  const [language, setLanguage] = useState('english');
+  // Initial language set to 'telugu'
+  const [language, setLanguage] = useState('telugu');
   const [isVisible, setIsVisible] = useState(false);
   const [contentFade, setContentFade] = useState(true);
   const [showToast, setShowToast] = useState(false);
@@ -188,6 +189,7 @@ const App = () => {
       wedding_time: "at 02:42 hrs (early Thursday)",
       wedding_venue_name: "I.M.A. Hall",
       wedding_venue_loc: "Satyanarayanapuram, Gudivada.",
+      dinner_info: "Dinner: from 7:00 p.m. onwards",
       reception_section: "Reception",
       reception_date: "Sunday, 8th March 2026",
       reception_time: "from 7:30 p.m. onwards",
@@ -222,6 +224,7 @@ const App = () => {
       wedding_time: "రాత్రి 02:42 గం||లకు (తెల్లవారితే గురువారం)",
       wedding_venue_name: "ఐ.ఎం.ఎ. హాల్",
       wedding_venue_loc: "సత్యనారాయణపురం, గుడివాడ.",
+      dinner_info: "విందు: రాత్రి 7:00 గం||ల నుండి",
       reception_section: "రిసెప్షన్",
       reception_date: "08-03-2026 ఆదివారం",
       reception_time: "రాత్రి గం|| 7:30 ని||ల నుండి",
@@ -384,11 +387,19 @@ const App = () => {
                   <p className="text-lg md:text-xl font-bold text-[#800000] tracking-tight">{t.wedding_date}</p>
                   <p className="text-base md:text-lg font-bold text-[#D4AF37]">{t.wedding_time}</p>
               </div>
+              
+              {/* UPDATED: Dinner Info moved above Venue */}
+              <div className="pt-6 border-t border-[#D4AF37]/10 w-full">
+                <p className="text-[#800000] font-bold text-sm md:text-base italic">{t.dinner_info}</p>
+              </div>
+
+              {/* Venue details below Dinner */}
               <div className="pt-6 border-t border-dashed border-[#D4AF37]/20 w-full space-y-2">
                 <p className="text-[#D4AF37] text-[10px] md:text-xs font-black uppercase tracking-[0.3em]">{t.venue_label}</p>
                 <p className="text-xl md:text-2xl font-bold text-[#800000] leading-tight">{t.wedding_venue_name}</p>
                 <p className="text-[#5D1212] font-bold text-sm md:text-base leading-relaxed opacity-80">{t.wedding_venue_loc}</p>
               </div>
+
               <div className="flex flex-col w-full gap-3">
                 <a href="https://maps.app.goo.gl/CKaKczCdHJX56og77" target="_blank" rel="noreferrer" className="bg-[#800000] text-[#FFFDF5] py-3 md:py-4 rounded-xl font-bold text-xs md:text-sm shadow-md flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all"><MapPin size={16} /> {t.map_label}</a>
                 <a href={weddingCalendar} target="_blank" rel="noreferrer" className="border-2 border-[#800000] text-[#800000] py-3 md:py-4 rounded-xl font-bold text-xs md:text-sm hover:bg-[#800000]/5 transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95"><Calendar size={16} /> {t.calendar_label}</a>
@@ -437,7 +448,7 @@ const App = () => {
                </p>
             </div>
             
-            {/* UPDATED: Share Button following Heritage Card Aesthetics */}
+            {/* Share Button following Heritage Card Aesthetics */}
             <div className="pt-10 flex justify-center">
               <button 
                 onClick={handleShare}
