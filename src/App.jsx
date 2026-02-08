@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Calendar, Clock, Phone, ArrowDown, Languages, CheckCircle2, Star } from 'lucide-react';
+import { MapPin, Calendar, Clock, Phone, ArrowDown, Languages, CheckCircle2, Star, Share2 } from 'lucide-react';
 
 // Custom Telugu Cultural Icon: Jeelakarra Bellam (Sacred Hands)
 const JeelakarraBellamIcon = ({ size = 24, className = "" }) => (
@@ -55,6 +55,7 @@ const App = () => {
   const [language, setLanguage] = useState('english');
   const [isVisible, setIsVisible] = useState(false);
   const [contentFade, setContentFade] = useState(true);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -74,7 +75,6 @@ const App = () => {
         100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
       }
 
-      /* English Title Font: Merriweather Bold */
       .font-display-english { font-family: 'Merriweather', serif; font-weight: 700; letter-spacing: 0.02em; }
       .font-script { font-family: 'Great Vibes', cursive; }
       .font-telugu-names { font-family: 'Suranna', serif; }
@@ -141,6 +141,34 @@ const App = () => {
     }, 450);
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: t.main_title,
+      text: isTelugu 
+        ? `${t.groom_name_only} మరియు ${t.bride_name_only} ల వివాహ ఆహ్వాన పత్రిక`
+        : `Join us for the wedding of ${t.groom_name_only} and ${t.bride_name_only}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      const textField = document.createElement('textarea');
+      textField.innerText = window.location.href;
+      document.body.appendChild(textField);
+      textField.select();
+      document.execCommand('copy');
+      textField.remove();
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    }
+  };
+
   const content = {
     english: {
       header_parts: ["Sreerasthu", "Shubhamasthu", "Avighnamasthu"],
@@ -169,6 +197,8 @@ const App = () => {
       venue_label: "Venue",
       map_label: "Map",
       calendar_label: "Add to Calendar",
+      share_label: "Share Invitation",
+      link_copied: "Link Copied!",
       toggle_text: "తెలుగులో చూడండి"
     },
     telugu: {
@@ -201,6 +231,8 @@ const App = () => {
       venue_label: "వేదిక",
       map_label: "మ్యాప్",
       calendar_label: "క్యాలెండర్",
+      share_label: "షేర్ చేయండి",
+      link_copied: "లింక్ కాపీ చేయబడింది!",
       toggle_text: "Switch to English"
     }
   };
@@ -209,22 +241,28 @@ const App = () => {
   const isTelugu = language === 'telugu';
 
   const mainContainerClasses = "p-6 md:p-16 text-center relative z-10 transition-all duration-500 ease-in-out " + (contentFade ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2") + (isTelugu ? " space-y-6 md:space-y-12" : " space-y-8 md:space-y-14");
-  
   const titleClasses = "text-[#1E1B4B] title-highlight-glow bg-[#F7E7CE] border-2 border-[#1E1B4B]/10 shadow-lg px-6 md:px-14 py-3 md:py-4 rounded-full inline-block mx-auto transition-all hover:scale-[1.02] active:scale-100 relative z-10 " + 
     (isTelugu ? "text-lg md:text-2xl font-bold font-sans" : "text-[22px] md:text-[41px] lg:text-[2.93rem] font-display-english");
-  
   const headerPartsClasses = "flex justify-between items-center text-[#800000] w-full max-w-2xl mx-auto px-2 mb-4 md:mb-2 relative z-10 transition-all " + 
     (isTelugu ? "text-[10px] md:text-sm uppercase font-black tracking-normal" : "text-xs md:text-lg font-medium font-header-english");
 
   return (
     <div className={"min-h-[100dvh] bg-[#1A0202] text-[#800000] overflow-x-hidden relative transition-all duration-700 " + (isTelugu ? 'font-sans' : 'font-serif')}>
       
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[2000] bg-[#1E1B4B] text-[#F7E7CE] px-6 py-3 rounded-full shadow-2xl font-bold text-sm animate-in fade-in slide-in-from-bottom-4 flex items-center gap-2">
+          <CheckCircle2 size={18} />
+          {t.link_copied}
+        </div>
+      )}
+
       {/* 1. FLOATING GOLD DUST EFFECT */}
       {[...Array(12)].map((_, i) => (
         <div key={i} className="gold-dust" style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%`, animationDuration: `${10 + Math.random() * 20}s`, animationDelay: `${-Math.random() * 20}s` }} />
       ))}
 
-      {/* LANGUAGE TOGGLE BUTTON - OPTIMIZED: Larger size for mobile transition */}
+      {/* LANGUAGE TOGGLE BUTTON */}
       <div className="fixed top-4 md:top-6 left-1/2 -translate-x-1/2 z-[1000]">
         <button 
           onClick={handleLanguageToggle} 
@@ -238,23 +276,19 @@ const App = () => {
       <div className="fixed inset-0 z-0 bg-heritage-pattern opacity-20"></div>
       <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_center,#4A0E0E_0%,#1A0202_100%)] opacity-95"></div>
 
-      {/* MAIN CONTAINER: Optimized padding for mobile */}
+      {/* MAIN CONTAINER */}
       <main className="relative z-10 flex flex-col items-center p-0 md:p-10 pt-24 md:pt-28 pb-10">
         <div className={"w-full max-w-5xl bg-transparent md:rounded-[2rem] relative overflow-hidden transition-all duration-1000 transform " + (isVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0')}>
           
-          {/* OPTIMIZED: Hide outer gold frame on mobile to save space */}
           <div className="hidden md:block">
             <CardOuterFrame />
           </div>
 
-          {/* INNER CARD: Full screen width on mobile, framed on desktop */}
           <div className="absolute inset-0 md:inset-8 bg-[#FFFDF5] md:rounded-[1.2rem] z-0 shadow-none md:shadow-[0_0_40px_rgba(0,0,0,0.05)] border-none md:border border-[#D4AF37]/10"></div>
 
-          {/* OPTIMIZED: Internal borders hidden on mobile */}
           <div className="hidden md:block absolute inset-10 border-[1px] border-[#D4AF37]/20 rounded-[1rem] pointer-events-none z-40"></div>
           <div className="hidden md:block absolute inset-12 border-[2px] border-double border-[#D4AF37]/25 rounded-[0.8rem] pointer-events-none z-40 shadow-[inset_0_0_20px_rgba(212,175,55,0.05)]"></div>
           
-          {/* Corner designs moved to exact edges on mobile (left-0, top-0) */}
           <HeritageCorner className="top-0 left-0 md:top-8 md:left-8" />
           <HeritageCorner className="top-0 right-0 md:top-8 md:right-8 rotate-90" />
           <HeritageCorner className="bottom-0 left-0 md:bottom-8 md:left-8 -rotate-90" />
@@ -401,6 +435,17 @@ const App = () => {
                   <span className="absolute -top-[1px] left-1/2 -translate-x-1/2 w-12 h-[2px] bg-[#D4AF37]"></span>
                   {t.compliments}
                </p>
+            </div>
+            
+            {/* UPDATED: Share Button following Heritage Card Aesthetics */}
+            <div className="pt-10 flex justify-center">
+              <button 
+                onClick={handleShare}
+                className="flex items-center gap-3 bg-[#800000] text-[#D4AF37] px-10 py-4 rounded-full font-black shadow-2xl hover:bg-[#D4AF37] hover:text-[#800000] hover:scale-105 transition-all transform active:scale-95 text-xs md:text-sm uppercase tracking-widest border-2 border-[#D4AF37]"
+              >
+                <Share2 size={20} />
+                {t.share_label}
+              </button>
             </div>
           </footer>
         </div>
